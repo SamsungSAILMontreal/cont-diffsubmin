@@ -1,0 +1,4 @@
+function [sol_rounded] = lasso_rounded(x_init, A, b, lambda, round_values)
+    sol = fista(@(y)0.5*norm(A*y-b,2)^2, @(y)A'*(A*y-b), @(y)norm(y,1), @(y,a)prox_l1_box(y,a), lambda, x_init);
+    sol_rounded = interp1(round_values, round_values, sol, 'nearest', 'extrap');
+end
