@@ -75,12 +75,23 @@ function [] = noisy_ulsq(n, m, use_gurobi, save_dir, task_id, job_id)
 
         phi = @(x) grid(x + 1)';
         phi_inverse = @(x) sum((x == grid) .* [0:k-1], 2);
+
+        %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+        % Local search solution %
+        %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+        x0 = phi_inverse(x_rar);
+        y0 = 0.5 * x_rar' * Q * x_rar - c'* x_rar;
+        F_add = @(y, x, i) F_marginal(Q, -c, 0, y, x, grid, i, "add");
+        F_rmv = @(y, x, i) F_marginal(Q, -c, 0, y, x, grid, i, "rmv");
+        [x_next, ~, time_loc_search] = local_search(F_add, F_rmv, y0, x0, 4, 1000, 1e-5);
+        x_local = phi(x_next);
+        time_local(j) = time_loc_search;
         
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
         % DSmin solution %
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
         tic;
-        [xds_rar, ~, ds_info_rar] = dsmin_local_search(phi_inverse(x_rar), Q_plus, Q_minus, -c, grid, k, outer_iters, inner_iters, outer_eps, inner_eps);
+        [xds_rar, ~, ds_info_rar] = dsmin_local_search(phi_inverse(x_rar), Q_plus, Q_minus, -c, 0, grid, k, outer_iters, inner_iters, outer_eps, inner_eps);
         time = toc;
         xds_rar = phi(xds_rar);
         time_ds_rar(j) = sum(ds_info_rar.time);
@@ -88,14 +99,14 @@ function [] = noisy_ulsq(n, m, use_gurobi, save_dir, task_id, job_id)
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
         % Accelerated DSmin solution %
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-        [xads_rar, ~, ads_info_rar] = dsmin_local_search(phi_inverse(x_rar), Q_plus, Q_minus, -c, grid, k, outer_iters, inner_iters, outer_eps, inner_eps, true);
+        [xads_rar, ~, ads_info_rar] = dsmin_local_search(phi_inverse(x_rar), Q_plus, Q_minus, -c, 0, grid, k, outer_iters, inner_iters, outer_eps, inner_eps, true);
         xads_rar = phi(xads_rar);
         time_ads_rar(j) = sum(ads_info_rar.time);
 
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
         % Old DSmin solution %
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-        [xdsold_rar, ~, dsold_info_rar] = dsmin(phi_inverse(x_rar), Q_plus, Q_minus, -c, grid, k, outer_iters, inner_iters, outer_eps, inner_eps, []);
+        [xdsold_rar, ~, dsold_info_rar] = dsmin(phi_inverse(x_rar), Q_plus, Q_minus, -c, 0, grid, k, outer_iters, inner_iters, outer_eps, inner_eps, []);
         xdsold_rar = phi(xdsold_rar);
         time_dsold_rar(j) = sum(dsold_info_rar.time);
 
@@ -172,6 +183,7 @@ function [] = noisy_ulsq(n, m, use_gurobi, save_dir, task_id, job_id)
         correct_ds_rar(j) = sum((xds_rar - signal) == 0) / n;
         correct_ads_rar(j) = sum((xads_rar - signal) == 0) / n;
         correct_dsold_rar(j) = sum((xdsold_rar - signal) == 0) / n;
+        correct_local(j) = sum((x_local - signal) == 0) / n;
 
         signals_rar(:, j) = x_rar;
         signals_admm(:, j) = x_admm;
@@ -179,6 +191,7 @@ function [] = noisy_ulsq(n, m, use_gurobi, save_dir, task_id, job_id)
         signals_ds_rar(:, j) = xds_rar;
         signals_ads_rar(:, j) = xads_rar;
         signals_dsold_rar(:, j) = xdsold_rar;
+        signals_local(:, j) = x_local;
         
         F_rar(j) = norm(A * x_rar - b)^2;
         F_admm(j) = f_admm;
@@ -186,6 +199,7 @@ function [] = noisy_ulsq(n, m, use_gurobi, save_dir, task_id, job_id)
         F_ds_rar(j) = norm(A * xds_rar - b)^2;
         F_ads_rar(j) = norm(A * xads_rar - b)^2;
         F_dsold_rar(j) = norm(A * xdsold_rar - b)^2;
+        F_local(j) = norm(A * x_local - b)^2;
     end
     if use_gurobi && m >= n
         Fopt = F_gurobi;
@@ -206,6 +220,8 @@ function [] = noisy_ulsq(n, m, use_gurobi, save_dir, task_id, job_id)
     results.correct_ds_rar = correct_ds_rar;
     results.correct_ads_rar = correct_ads_rar;
     results.correct_dsold_rar = correct_dsold_rar;
+    results.correct_local = correct_local;
+    
 
     results.signals_rar = signals_rar;
     results.signals_admm = signals_admm;
@@ -213,6 +229,7 @@ function [] = noisy_ulsq(n, m, use_gurobi, save_dir, task_id, job_id)
     results.signals_ds_rar = signals_ds_rar;
     results.signals_ads_rar = signals_ads_rar;
     results.signals_dsold_rar = signals_dsold_rar;
+    results.signals_local = signals_local;
 
     results.time_rar = time_rar;
     results.time_admm = time_admm;
@@ -220,6 +237,7 @@ function [] = noisy_ulsq(n, m, use_gurobi, save_dir, task_id, job_id)
     results.time_ds_rar = time_ds_rar;
     results.time_ads_rar = time_ads_rar;
     results.time_dsold_rar = time_dsold_rar;
+    results.time_local = time_local;
 
     results.optgap_rar = (F_rar - Fopt) ./ Fopt;
     results.optgap_admm = (F_admm - Fopt) ./ Fopt;
@@ -227,6 +245,7 @@ function [] = noisy_ulsq(n, m, use_gurobi, save_dir, task_id, job_id)
     results.optgap_ds_rar = (F_ds_rar - Fopt) ./ Fopt;
     results.optgap_ads_rar = (F_ads_rar - Fopt) ./ Fopt;
     results.optgap_dsold_rar = (F_dsold_rar - Fopt) ./ Fopt;
+    results.optgap_local = (F_local - Fopt) ./ Fopt;
 
     if use_gurobi && m >= n
         results.correct_gurobi = correct_gurobi;

@@ -1,14 +1,14 @@
-function [xmin, Fmin, ds_info] = dsmin_local_search(x, Q_plus, Q_minus, c, grid, k, outer_iters, inner_iters, outer_eps, inner_eps, accelerate, break_ties)
+function [xmin, Fmin, ds_info] = dsmin_local_search(x, Q_plus, Q_minus, c, lambda, grid, k, outer_iters, inner_iters, outer_eps, inner_eps, accelerate, break_ties)
 % Approximates min_{x in {0, ..., k-1}^n} F(x) :=  G(x) - H(x)
 % by applying DC algo to the equivalent continuous relaxation problem
 % min_{rho in [0,1]↓^{n x (k-1)}} f(rho) := g(rho) - h(rho)
 % INPUT:
 % OUTPUT:
 
-    if nargin < 11
+    if nargin < 12
         break_ties = [];
         accelerate = false;
-    elseif nargin < 12
+    elseif nargin < 13
         break_ties = [];
     end
 
@@ -18,13 +18,13 @@ function [xmin, Fmin, ds_info] = dsmin_local_search(x, Q_plus, Q_minus, c, grid,
 
     n = size(x, 1);
     Q = Q_minus + Q_plus;
-    F = @(x) 0.5 * grid(x + 1) * Q * grid(x + 1)' + grid(x + 1) * c;
+    F = @(x) 0.5 * grid(x + 1) * Q * grid(x + 1)' + grid(x + 1) * c + lambda*sum(grid(x+1) ~= 0);
 
-    F_add = @(y, x, i) F_marginal(Q, c, y, x, grid, i, "add");
-    F_rmv = @(y, x, i) F_marginal(Q, c, y, x, grid, i, "rmv");
-    H_add = @(y, x, i) F_marginal(-Q_plus, zeros(n,1), y, x, grid, i, "add");
+    F_add = @(y, x, i) F_marginal(Q, c, lambda, y, x, grid, i, "add");
+    F_rmv = @(y, x, i) F_marginal(Q, c, lambda, y, x, grid, i, "rmv");
+    H_add = @(y, x, i) F_marginal(-Q_plus, zeros(n,1), 0, y, x, grid, i, "add");
 
-    y0_G = 0.5 * grid(x + 1) * Q_minus * grid(x + 1)' + grid(x + 1) * c;
+    y0_G = 0.5 * grid(x + 1) * Q_minus * grid(x + 1)' + grid(x + 1) * c + lambda*sum(grid(x+1) ~= 0);
     y0_H = - 0.5 * grid(x + 1) * (Q_plus) * grid(x + 1)';
     y0_F = y0_G - y0_H;
  
@@ -91,7 +91,7 @@ function [xmin, Fmin, ds_info] = dsmin_local_search(x, Q_plus, Q_minus, c, grid,
             W = greedy_algorithm(rho, y0_H, H_add, ties);
             fprintf("DCA converged after %d iterations to a local min \n", i)
         end
-        G_add = @(y, x, i) submod_major_marginal(Q_minus, c, -W, y, x, grid, i, "add");
+        G_add = @(y, x, i) submod_major_marginal(Q_minus, c, lambda, -W, y, x, grid, i, "add");
 %         mod_approx_H = ModFct(W);
 %         submod_major = LatticeFctLinComb({G, mod_approx_H}, [1, -1]);
         [rho_new, dual_gaps_i] = fwpairwise(y0_G, G_add, rho, inner_iters, inner_eps);

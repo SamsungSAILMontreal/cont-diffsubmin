@@ -1,4 +1,4 @@
-function [y_new, x_new] = submod_major_marginal(Q, c, W, y, x, grid, i, direction)
+function [y_new, x_new] = submod_major_marginal(Q, c, lambda, W, y, x, grid, i, direction)
     if strcmp(direction, "add")
         if x(i) < length(grid)
             x_new = x;
@@ -6,6 +6,12 @@ function [y_new, x_new] = submod_major_marginal(Q, c, W, y, x, grid, i, directio
             w = W(i, x_new(i));
             d = grid(x(i) + 2) - grid(x(i) + 1);
             y_new = y + 0.5*d*grid(x + 1)*(Q(:,i)+Q(i,:)') + 0.5*d^2 * Q(i,i) + d*c(i) + w;
+            if grid(x(i) + 2) == 0
+                y_new = y_new - lambda;
+            end
+            if grid(x(i) + 1) == 0 && grid(x(i) + 2) ~= 0
+                y_new = y_new + lambda;
+            end
         else
             x_new = x;
             y_new = y;
@@ -17,6 +23,12 @@ function [y_new, x_new] = submod_major_marginal(Q, c, W, y, x, grid, i, directio
             x_new(i) = x_new(i) - 1;
             d = grid(x(i) + 1) - grid(x(i));
             y_new = y - 0.5*d*grid(x + 1)*(Q(:,i)+Q(i,:)') + 0.5*d^2 * Q(i,i) - d*c(i) - w;
+            if grid(x(i)) == 0
+                y_new = y_new - lambda;
+            end
+            if grid(x(i) + 1) == 0 && grid(x(i)) ~= 0
+                y_new = y_new + lambda;
+            end
         else
             x_new = x;
             y_new = y;

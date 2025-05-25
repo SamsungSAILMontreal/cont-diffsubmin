@@ -77,13 +77,13 @@ function [info] = reconstruct_signal(method, A, b, lambdas, true_signal, noise, 
 
             if lasso_init
                 lasso_warmstart = @(x, lambda) signal2lattice(lasso_rounded(lattice2signal(x), A, b, lambda, signal_vals));
-                reconstructor = @(x, lambda) dsmin_local_search(lasso_warmstart(x, lambda), Q_plus, Q_minus + 2*lambda*eye(n), -c, signal_vals, k, outer_iters, inner_iters, outer_eps, inner_eps, false, break_ties);
+                reconstructor = @(x, lambda) dsmin_local_search(lasso_warmstart(x, lambda), Q_plus, Q_minus, -c, lambda, signal_vals, k, outer_iters, inner_iters, outer_eps, inner_eps, false, break_ties);
                 init_sol = ones(n, 1);
                 current_sol = init_sol;
             else
                 %start from 0 vector (i.e. vector of all ones for the
                 %lattice).
-                reconstructor = @(x, lambda) dsmin_local_search(x, Q_plus, Q_minus + 2*lambda*eye(n), -c, signal_vals, k, outer_iters, inner_iters, outer_eps, inner_eps, false, break_ties);
+                reconstructor = @(x, lambda) dsmin_local_search(x, Q_plus, Q_minus, -c, lambda, signal_vals, k, outer_iters, inner_iters, outer_eps, inner_eps, false, break_ties);
                 init_sol = ones(n, 1);
                 current_sol = init_sol;
             end
@@ -116,13 +116,13 @@ function [info] = reconstruct_signal(method, A, b, lambdas, true_signal, noise, 
 
             if lasso_init
                 lasso_warmstart = @(x, lambda) signal2lattice(lasso_rounded(lattice2signal(x), A, b, lambda, signal_vals));
-                reconstructor = @(x, lambda) dsmin(lasso_warmstart(x, lambda), Q_plus, Q_minus + 2*lambda*eye(n), -c, signal_vals, k, outer_iters, inner_iters, outer_eps, inner_eps, break_ties);
+                reconstructor = @(x, lambda) dsmin(lasso_warmstart(x, lambda), Q_plus, Q_minus, -c, lambda, signal_vals, k, outer_iters, inner_iters, outer_eps, inner_eps, break_ties);
                 init_sol = ones(n, 1);
                 current_sol = init_sol;
             else
                 %start from 0 vector (i.e. vector of all ones for the
                 %lattice).
-                reconstructor = @(x, lambda) dsmin(x, Q_plus, Q_minus + 2*lambda*eye(n), -c, signal_vals, k, outer_iters, inner_iters, outer_eps, inner_eps, break_ties);
+                reconstructor = @(x, lambda) dsmin(x, Q_plus, Q_minus, -c, lambda, signal_vals, k, outer_iters, inner_iters, outer_eps, inner_eps, break_ties);
                 init_sol = ones(n, 1);
                 current_sol = init_sol;
             end
