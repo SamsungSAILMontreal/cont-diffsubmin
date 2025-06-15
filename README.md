@@ -1,19 +1,16 @@
-# cont-diffsubmin
-Code for "Discrete and Continuous Difference of Submodular Minimization" [ICML 2025]
+# Discrete and Continuous Difference of Submodular Minimization
 
-# To reproduce results in the paper
+Code to reproduce results of the paper [Discrete and Continuous Difference of Submodular Minimization](https://arxiv.org/pdf/2506.07952)
 
-## Integer compressed sensing (varying measurements)
-- run  script
+## To reproduce results in the paper
 
-## Integer compressed sensing (varying noise)
-- run  script
+### Integer least squares 
+- run  script Least-Squares/ilsq.sh for exmperiments with varying measurements, or Least-Squares/noisy_ilsq.sh for exmperiments with varying noise.
+- plot results using Least-Squares/plot_measurements.m for exmperiments with varying measurements, or Least-Squares/plot_noisy.m for exmperiments with varying noise.
 
-## Integer least squares (varying measurements)
-- run  script
-
-## Integer least squares (varying noise)
-- run  script
+### Integer compressed sensing 
+- run  script CS/integer_cs.sh for exmperiments with varying measurements, or CS/noisy_integer_cs.sh for exmperiments with varying noise.
+- plot results using CS/plot_measurements.m for exmperiments with varying measurements, or CS/plot_noisy.m for exmperiments with varying noise.
 
 # Acknowledgements
 - We use a number of functions implemented in [1] (such as the pairwise FW algorithm for submodular minimization). The code is available at http://www.di.ens.fr/~fbach/submodular_multi_online.zip.  
