@@ -23,7 +23,7 @@ Code to reproduce results of the paper [Discrete and Continuous Difference of Su
 ```
 
 # Acknowledgements
-- We use a number of functions implemented from [1] (such as the pairwise FW algorithm for submodular minimization).  
+- We use a number of functions from [1] (such as the pairwise FW algorithm for submodular minimization).  
 - We use the FISTA implementation from [2].
 - We use the ADMM heuristic for mixed-integer quadratic programming from [3].
 - Our implementation of OMP is based on the implementation in [4].
