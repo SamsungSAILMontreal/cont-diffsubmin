@@ -1,9 +1,25 @@
 function [xmin, Fmin, ds_info] = dsmin_local_search(x, Q_plus, Q_minus, c, lambda, grid, k, outer_iters, inner_iters, outer_eps, inner_eps, accelerate, break_ties)
 % Approximates min_{x in {0, ..., k-1}^n} F(x) :=  G(x) - H(x)
-% by applying DC algo to the equivalent continuous relaxation problem
-% min_{rho in [0,1]↓^{n x (k-1)}} f(rho) := g(rho) - h(rho)
+% by applying DC algo (Algo 3 in the paper) to the equivalent continuous
+% relaxation of min_{x in {0,...,k-1}^n} f(x) = 0.5*grid(x + 1)*Q*grid(x + 1)' + c^T*grid(x + 1)' + lambda * ||x||_0
+
 % INPUT:
+% x: Initial starting point x in {0,...,k-1}^n.
+% Q_plus: Q_plus = max(Q,0).
+% Q_minus: Q_minus = min(Q,0).
+% grid: row vector of length (k-1) containing the (ordered) grid points.
+% outer_iters: max number of outer iterations for DCA.
+% inner_iters: max number of inner iterations for DCA.
+% outer_eps: epsilon used in termination criteria for DCA.
+% inner_eps: epsilon used in termination criteria for pairwise FW.
+% break_ties: optional argument. to break ties when choosing permutations
+% using a random permutation set break_ties="random".
+
 % OUTPUT:
+% xmin: The output from DCA.
+% Fmin: The value of F at xmin.
+% ds_info: struct containing additional information from each DCA
+% iteration.
 
     if nargin < 12
         break_ties = [];

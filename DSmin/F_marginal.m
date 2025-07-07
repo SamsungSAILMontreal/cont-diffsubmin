@@ -1,4 +1,20 @@
 function [y_new, x_new] = F_marginal(Q, c, lambda, y, x, grid, i, direction)
+% Computes the marginal gain/loss of
+% f(x) = 0.5*grid(x + 1)*Q*grid(x + 1)' + c^T*grid(x + 1)' + lambda * ||x||_0.
+
+% Given input/value pair y = f(x), compute y_new = f(x +/- e_i), with
+% e_i the ith basis vector.
+
+% INPUT:
+% y: The current value y = f(x).
+% x: A point in {0,...,k-1}^n.
+% grid: row vector of length (k-1) containing the (ordered) grid points.
+% direction: direction="add" computes y_new = f(x + e_i), 
+%            direction="rmv" computes y_new = f(x - e_i).
+
+% OUTPUT:
+% x_new: x_new = x + e_i if direction="add", else x_new = x - e_i if
+% direction="rmv".
     if strcmp(direction, "add")
         if x(i) < length(grid) - 1
             x_new = x;
