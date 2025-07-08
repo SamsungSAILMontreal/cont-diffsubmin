@@ -1,18 +1,25 @@
 function [rho, gaps] = fwpairwise(y0, F_add, rho, maxiter, eps)
 %A modified version of the Pairwise Frank-Wolfe algorithm for submodular 
-% minimization from "Submodular Functions: from Discrete to Continous
-% Domains". Use for minimizing submodular functions
+% minimization from:
+
+% Bach, Francis. "Submodular functions: from discrete to continuous domains." 
+% Mathematical Programming 175 (2019): 419-459. 
+% (http://www.di.ens.fr/~fbach/submodular_multi_online.zip) Retrieved January 22, 2024.
+
+% Use for minimizing submodular functions
 % min_{x in {0,...,k-1}^n} F(x).
 
 % INPUT:
 % y0: y0 = F(0).
-% F_add: A function capable of computing the marginal gain of F. That is,
-%        given initial y = F(x), F_add computes y_add = F(x + e_i).
+% F_add: Given initial y = F(x), F_add computes y_add = F(x + e_i).
 % rho: An n*(k-1) row-nonincreasing matrix with elements in [0,1] which 
 %      serves as a starting point for Pairwise FW.
 % maxiter: max number of Pairwise FW iterations.
+% eps: stop Pairwise FW when duality gap is less than eps.
 
 % OUTPUT:
+% rho: The output from Pairwise FW, an n*(k-1) row-nonincreasing matrix with elements in [0,1].
+% gaps: An array holding the duality gaps from each iteration.
     [n, k] = size(rho);
     k = k+1;
     w = greedy_algorithm(rho, y0, F_add);

@@ -15,6 +15,7 @@ function [y_new, x_new] = F_marginal(Q, c, lambda, y, x, grid, i, direction)
 % OUTPUT:
 % x_new: x_new = x + e_i if direction="add", else x_new = x - e_i if
 % direction="rmv".
+% y_new: F(x_new).
     if strcmp(direction, "add")
         if x(i) < length(grid) - 1
             x_new = x;
