@@ -5,14 +5,13 @@ function [info] = reconstruct_signal(method, A, b, lambdas, true_signal, noise, 
 % measurements obtained by b = A * true_signal + noise. Lambdas is either a scalar
 % or an array which changes the value of the sparsity penalty multiplier.
 % This is used for methods which solve min_x ||Ax - b||^2 + lambda * F(x), 
-% where supp(x) is the support of the vector x, and F is some sparsity 
-% enforcing function . When lambdas is an array of values, then we loop over 
-% the different values present and choose the reconstructed signal which most closely matches true_signal 
-% in the L2 norm. For example, [best_signal, best_lsq_obj] = reconstruct_signal('lasso', A, b, [1,0.1,0.01], true_signal)
+% where F is some sparsity enforcing function . When lambdas is an array of values, 
+% then we loop over the different values present and choose the 
+% reconstructed signal which most closely matches true_signal 
+% in the L2 norm. For example, 
+% reconstruct_signal('lasso', A, b, [1,0.1,0.01], true_signal)
 % attempts to reconstruct true_signal using lasso, looping over the different
-% values of lambda = [1,0.1,0.01]. best_signal is the recovered signal
-% which most closely matches true_signal, and best_lsq_obj is the least
-% squares objective ||A * best_signal - b||^2.
+% values of lambda = [1,0.1,0.01].
     n = size(A, 2);
     fields = {'best_signal', 'best_lsq_obj', 'time', ...
                 'f_min', 'f_vals', 'solutions', 'lambdas',... 

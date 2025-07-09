@@ -25,7 +25,7 @@ function [signals, residuals] = OMP(A, b, sparsity, extra_iters, noise_level)
         %      that magnitude of the the noise.
 
         %We proceed to update support set using OMP, following the approach
-        %used by Stephen Becker *put reference here* 
+        %used by Stephen Becker (see 
         count = count + 1;
         [~, next_col] = max(abs(r' * A));
         supp_indices(count) = next_col;
