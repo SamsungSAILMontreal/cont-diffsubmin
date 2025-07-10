@@ -1,12 +1,18 @@
 function z_hat = babai(A, b, grid)
-%%
-%   compute the Babai estimation
-%   find a sub-optimal solution for min_z ||R*z-y||_2
-%   R - an upper triangular real matrix of n-by-n
-%   y - a real vector of n-by-1
-%   z_hat - resulting integer vector
 %   A modified version of the code taken from
-%   https://gist.github.com/sameerjagdale/216a9e47121ac5ca3dda
+%   https://gist.github.com/sameerjagdale/216a9e47121ac5ca3dda.
+
+%   compute the box-constrained Babai point to obtain a sub-optimal 
+%   solution for min_{x in grid^n} ||A*x-b||_2
+%   see, for example, https://www.cs.mcgill.ca/~chang/pub/WenCT17.pdf
+%   Section II for more details.
+% INPUT:
+% A: mxn real matrix
+% b: m-dimensional array of measurements
+% grid: A 1d array of points in R^n.
+
+% OUTPUT:
+% z_hat: the box-constrained Babai point.
     [Q, R] = qr(A, "econ");
     y = Q' * b;
     n = length(y);

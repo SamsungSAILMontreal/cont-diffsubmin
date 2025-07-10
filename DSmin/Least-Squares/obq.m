@@ -1,4 +1,21 @@
 function [w] = obq(A, w, grid, variant)
+    %An implementation of the Optimal Brain Quantization method given in:
+
+    %Frantar, Elias, and Dan Alistarh. 
+    %"Optimal brain compression: A framework for accurate post-training quantization and pruning." 
+    % Advances in Neural Information Processing Systems 35 (2022): 4475-4488. 
+   
+    %Specifically, this code implements Algorithm 3 for obtaining a sub-optimal 
+    %solution to min_{x in grid^n} ||A*x-b||_2
+    %by quantizing a vector w to a point in grid^n.
+    
+    % INPUT:
+    % A: mxn real matrix
+    % grid: A 1d array of points in R^n.
+    % w: an initial vector to quantize.
+
+    % OUTPUT:
+    % w: the quantized vector.
     [~,n] = size(A);
     H = 2 * (A' * A);
     if variant == 1
